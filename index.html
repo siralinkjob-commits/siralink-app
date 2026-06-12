@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SiraLink Mini App</title>
-    <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
@@ -45,23 +43,25 @@
         }
 
         .header img {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             border: 2px solid var(--tg-theme-button-color);
+            object-fit: cover;
         }
 
         .btn {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             background-color: var(--tg-theme-button-color);
             color: var(--tg-theme-button-text-color);
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
             margin-bottom: 12px;
+            transition: background 0.2s;
         }
 
         .form-group {
@@ -71,61 +71,79 @@
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
             font-size: 14px;
-            color: var(--tg-theme-hint-color);
+            font-weight: 600;
+            color: var(--tg-theme-text-color);
         }
 
         .form-group input, .form-group select {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid var(--tg-theme-hint-color);
-            border-radius: 6px;
+            border-radius: 8px;
             background: transparent;
             color: var(--tg-theme-text-color);
             box-sizing: border-box;
+            font-size: 15px;
         }
 
         .job-card {
-            background: rgba(0, 0, 0, 0.05);
+            background: rgba(0, 0, 0, 0.04);
+            border-left: 4px solid var(--tg-theme-button-color);
             border-radius: 8px;
             padding: 15px;
             margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .job-title {
+            margin: 0 0 8px 0;
+            color: var(--tg-theme-button-color);
+            font-size: 16px;
+        }
+
+        .job-desc {
+            font-size: 14px;
+            white-space: pre-line;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .job-meta {
+            font-size: 12px;
+            color: var(--tg-theme-hint-color);
+            display: block;
         }
     </style>
 </head>
 <body>
 
-    <!-- 1. LOADING SCREEN -->
-    <div id="loading-screen" class="screen active" style="text-align: center; margin-top: 50px;">
-        <h3>SiraLink...</h3>
+    <div id="loading-screen" class="screen active" style="text-align: center; margin-top: 80px;">
+        <h2 style="color: var(--tg-theme-button-color);">SiraLink</h2>
         <p style="color: var(--tg-theme-hint-color);">በቴሌግራም አካውንትዎ እየገቡ ነው...</p>
     </div>
 
-    <!-- 2. DASHBOARD SCREEN -->
     <div id="dashboard-screen" class="screen">
         <div class="header">
-            <img id="user-photo" src="https://via.placeholder.com/60" alt="Profile">
+            <img id="user-photo" src="https://via.placeholder.com/70" alt="Profile">
             <h3 id="welcome-msg">እንኳን ደህና መጡ!</h3>
         </div>
         
         <button class="btn" onclick="switchScreen('announcement-screen')">📢 Announcement (ስራዎች)</button>
         <button class="btn" onclick="switchScreen('profile-screen')">👤 Profile (የግል መረጃ)</button>
-        <button class="btn" style="background-color: var(--tg-theme-hint-color);">✨ በቅርቡ (More)</button>
+        <button class="btn" style="background-color: var(--tg-theme-hint-color); cursor: not-allowed;">✨ በቅርቡ (More)</button>
     </div>
 
-    <!-- 3. ANNOUNCEMENT SCREEN -->
     <div id="announcement-screen" class="screen">
-        <h3>📢 የቅርብ ጊዜ የስራ ማስታወቂያዎች</h3>
+        <h3 style="border-bottom: 2px solid var(--tg-theme-button-color); padding-bottom: 10px;">📢 የቅርብ ጊዜ የስራ ማስታወቂያዎች</h3>
         <div id="jobs-container">
-            <p style="color: var(--tg-theme-hint-color);">በእርስዎ ዘርፍ የተለቀቁ ስራዎች እዚህ ይታያሉ...</p>
-        </div>
-        <button class="btn" onclick="switchScreen('dashboard-screen')" style="background: grey;">🔙 ወደ ዳሽቦርድ</button>
+            </div>
+        <button class="btn" onclick="switchScreen('dashboard-screen')" style="background: #7f8c8d; margin-top: 15px;">🔙 ወደ ዳሽቦርድ</button>
     </div>
 
-    <!-- 4. PROFILE SCREEN -->
     <div id="profile-screen" class="screen">
-        <h3>👤 የእርስዎን መረጃ ያሟሉ</h3>
+        <h3 style="border-bottom: 2px solid var(--tg-theme-button-color); padding-bottom: 10px;">👤 የእርስዎን መረጃ ያሟሉ</h3>
         <div class="form-group">
             <label>ሙሉ ስም</label>
             <input type="text" id="prof-name" placeholder="ሙሉ ስምዎን ያስገቡ">
@@ -138,22 +156,22 @@
             <label>የተመረቁበት የትምህርት ክፍል (ዘርፍ)</label>
             <select id="prof-dept">
                 <option value="">ዘርፍ ይምረጡ</option>
-                <option value="IT">Software/IT/Computer Science</option>
+                <option value="IT">Software / IT / Computer Science</option>
                 <option value="Accounting">Accounting & Finance</option>
                 <option value="Health">Health & Medicine</option>
                 <option value="Marketing">Marketing & Sales</option>
             </select>
         </div>
         <button class="btn" onclick="saveProfile()">💾 መረጃውን መዝግብ</button>
-        <button class="btn" onclick="switchScreen('dashboard-screen')" style="background: grey;">🔙 ተመለስ</button>
+        <button class="btn" onclick="switchScreen('dashboard-screen')" style="background: #7f8c8d;">🔙 ተመለስ</button>
     </div>
 
     <script>
         // ቴሌግራም SDK ዝግጁ ማድረግ
         const tg = window.Telegram.WebApp;
-        tg.expand(); // አፑ ሙሉ ስክሪን እንዲሆን
+        tg.expand();
 
-        // ሱፓቤስን ማገናኘት (የአንተን መረጃዎች ተክተናል)
+        // ሱፓቤስን ማገናኘት (የአንተ መረጃዎች)
         const supabaseUrl = 'https://erxhzjusebsmpepznaav.supabase.co';
         const supabaseKey = 'sb_publishable_4aNVArZpXVGdZR_AQ8H0Ug_XQdzP5Nc';
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -164,16 +182,20 @@
         function switchScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
+            
+            // ወደ ማስታወቂያ ገጽ ሲሄዱ ስራዎችን በራስ-ሰር እንዲጭን ማድረግ
+            if(screenId === 'announcement-screen') {
+                loadApprovedJobs();
+            }
         }
 
         // ተጠቃሚውን የመለየት ስራ (Auto-Login)
         async function initApp() {
-            // ከቴሌግራም መረጃዎችን መውሰድ
             const tgUser = tg.initDataUnsafe?.user;
             
             if (!tgUser) {
-                // ለሙከራ እንዲመች (ከቴሌግራም ውጭ ከሆነ ዱሚ ID ይሰጣል)
-                currentUser = { id: 12345678, first_name: "የሙከራ ተጠቃሚ" };
+                // በስልክ ብሮውዘር ብቻ ለሙከራ ሲከፈት
+                currentUser = { id: 12345678, first_name: "የሙከራ ተጠቃሚ", username: "test_user" };
             } else {
                 currentUser = {
                     id: tgUser.id,
@@ -183,19 +205,19 @@
                 };
             }
 
-            // ዳሽቦርዱን በተጠቃሚው ስም ማደስ
+            // ዳሽቦርዱን ማደስ
             document.getElementById('welcome-msg').innerText = `እንኳን ደህና መጡ፣ ${currentUser.first_name}!`;
             if(currentUser.photo_url) {
                 document.getElementById('user-photo').src = currentUser.photo_url;
             }
 
             try {
-                // 1. ተጠቃሚው ዳታቤዝ ውስጥ መኖሩን ማረጋገጥ
+                // 1. ተጠቃሚው users table ውስጥ መኖሩን ማረጋገጥ
                 let { data: userExist, error } = await _supabase
                     .from('users')
                     .select('*')
                     .eq('telegram_id', currentUser.id)
-                    .single();
+                    .maybeSingle();
 
                 if (!userExist) {
                     // 2. ከሌለ አዲስ ተጠቃሚ መመዝገብ
@@ -206,11 +228,10 @@
                     }]);
                 }
                 
-                // በተሳካ ሁኔታ ሲጠናቀቅ ቀጥታ ወደ ዳሽቦርድ ማለፍ
                 switchScreen('dashboard-screen');
             } catch (err) {
                 console.error("የዳታቤዝ ስህተት:", err);
-                switchScreen('dashboard-screen'); // ስህተት ቢኖርም ለሙከራ ያሳልፈው
+                switchScreen('dashboard-screen');
             }
         }
 
@@ -225,7 +246,7 @@
                 return;
             }
 
-            tg.showProgress(); // የቴሌግራም መጫኛ ማሳያ
+            if(tg.showProgress) tg.showProgress();
 
             const { error } = await _supabase.from('profiles').insert([{
                 telegram_id: currentUser.id,
@@ -234,7 +255,7 @@
                 department: dept
             }]);
 
-            tg.hideProgress();
+            if(tg.hideProgress) tg.hideProgress();
 
             if (!error) {
                 alert('መረጃዎ በተሳካ ሁኔታ ተመዝግቧል!');
@@ -242,6 +263,35 @@
             } else {
                 alert('ስህተት አጋጥሟል፡ ' + error.message);
             }
+        }
+
+        // ዳታቤዝ ውስጥ ያሉ የጸደቁ ስራዎችን አምጥቶ ማሳያ
+        async function loadApprovedJobs() {
+            const container = document.getElementById('jobs-container');
+            container.innerHTML = '<p style="color: var(--tg-theme-hint-color); text-align:center;">ስራዎች በመጫን ላይ ናቸው...</p>';
+
+            const { data: jobs, error } = await _supabase
+                .from('jobs')
+                .select('*')
+                .eq('is_approved', true) 
+                .order('id', { ascending: false });
+
+            if (error || !jobs || jobs.length === 0) {
+                container.innerHTML = '<p style="color: var(--tg-theme-hint-color); text-align:center; margin-top:20px;">ለጊዜው ምንም አዲስ የስራ ማስታወቂያ የለም።</p>';
+                return;
+            }
+
+            container.innerHTML = ''; // ማሳያውን ማጽዳት
+            jobs.forEach(job => {
+                const card = document.createElement('div');
+                card.className = 'job-card';
+                card.innerHTML = `
+                    <h4 class="job-title">${job.title}</h4>
+                    <p class="job-desc">${job.description}</p>
+                    <span class="job-meta">📌 ዘርፍ፡ ${job.category}</span>
+                `;
+                container.appendChild(card);
+            });
         }
 
         // አፑ ሲከፈት ስራ እንዲጀምር ማድረግ
