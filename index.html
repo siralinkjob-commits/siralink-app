@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SiraLink Mini App</title>
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        :root {
+            --tg-theme-bg-color: #ffffff;
+            --tg-theme-text-color: #232323;
+            --tg-theme-button-color: #2481cc;
+            --tg-theme-button-text-color: #ffffff;
+            --tg-theme-hint-color: #999999;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .screen {
+            display: none;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .active {
+            display: block;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid var(--tg-theme-button-color);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: var(--tg-theme-hint-color);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--tg-theme-hint-color);
+            border-radius: 6px;
+            background: transparent;
+            color: var(--tg-theme-text-color);
+            box-sizing: border-box;
+        }
+
+        .job-card {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. LOADING SCREEN -->
+    <div id="loading-screen" class="screen active" style="text-align: center; margin-top: 50px;">
+        <h3>SiraLink...</h3>
+        <p style="color: var(--tg-theme-hint-color);">በቴሌግራም አካውንትዎ እየገቡ ነው...</p>
+    </div>
+
+    <!-- 2. DASHBOARD SCREEN -->
+    <div id="dashboard-screen" class="screen">
+        <div class="header">
+            <img id="user-photo" src="https://via.placeholder.com/60" alt="Profile">
+            <h3 id="welcome-msg">እንኳን ደህና መጡ!</h3>
+        </div>
+        
+        <button class="btn" onclick="switchScreen('announcement-screen')">📢 Announcement (ስራዎች)</button>
+        <button class="btn" onclick="switchScreen('profile-screen')">👤 Profile (የግል መረጃ)</button>
+        <button class="btn" style="background-color: var(--tg-theme-hint-color);">✨ በቅርቡ (More)</button>
+    </div>
+
+    <!-- 3. ANNOUNCEMENT SCREEN -->
+    <div id="announcement-screen" class="screen">
+        <h3>📢 የቅርብ ጊዜ የስራ ማስታወቂያዎች</h3>
+        <div id="jobs-container">
+            <p style="color: var(--tg-theme-hint-color);">በእርስዎ ዘርፍ የተለቀቁ ስራዎች እዚህ ይታያሉ...</p>
+        </div>
+        <button class="btn" onclick="switchScreen('dashboard-screen')" style="background: grey;">🔙 ወደ ዳሽቦርድ</button>
+    </div>
+
+    <!-- 4. PROFILE SCREEN -->
+    <div id="profile-screen" class="screen">
+        <h3>👤 የእርስዎን መረጃ ያሟሉ</h3>
+        <div class="form-group">
+            <label>ሙሉ ስም</label>
+            <input type="text" id="prof-name" placeholder="ሙሉ ስምዎን ያስገቡ">
+        </div>
+        <div class="form-group">
+            <label>ስልክ ቁጥር</label>
+            <input type="tel" id="prof-phone" placeholder="+251...">
+        </div>
+        <div class="form-group">
+            <label>የተመረቁበት የትምህርት ክፍል (ዘርፍ)</label>
+            <select id="prof-dept">
+                <option value="">ዘርፍ ይምረጡ</option>
+                <option value="IT">Software/IT/Computer Science</option>
+                <option value="Accounting">Accounting & Finance</option>
+                <option value="Health">Health & Medicine</option>
+                <option value="Marketing">Marketing & Sales</option>
+            </select>
+        </div>
+        <button class="btn" onclick="saveProfile()">💾 መረጃውን መዝግብ</button>
+        <button class="btn" onclick="switchScreen('dashboard-screen')" style="background: grey;">🔙 ተመለስ</button>
+    </div>
+
+    <script>
+        // ቴሌግራም SDK ዝግጁ ማድረግ
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // አፑ ሙሉ ስክሪን እንዲሆን
+
+        // ሱፓቤስን ማገናኘት (የአንተን መረጃዎች ተክተናል)
+        const supabaseUrl = 'https://erxhzjusebsmpepznaav.supabase.co';
+        const supabaseKey = 'sb_publishable_4aNVArZpXVGdZR_AQ8H0Ug_XQdzP5Nc';
+        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        let currentUser = null;
+
+        // ገጾችን ለመቀያየር የሚረዳ ተግባር
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // ተጠቃሚውን የመለየት ስራ (Auto-Login)
+        async function initApp() {
+            // ከቴሌግራም መረጃዎችን መውሰድ
+            const tgUser = tg.initDataUnsafe?.user;
+            
+            if (!tgUser) {
+                // ለሙከራ እንዲመች (ከቴሌግራም ውጭ ከሆነ ዱሚ ID ይሰጣል)
+                currentUser = { id: 12345678, first_name: "የሙከራ ተጠቃሚ" };
+            } else {
+                currentUser = {
+                    id: tgUser.id,
+                    first_name: tgUser.first_name,
+                    username: tgUser.username,
+                    photo_url: tgUser.photo_url
+                };
+            }
+
+            // ዳሽቦርዱን በተጠቃሚው ስም ማደስ
+            document.getElementById('welcome-msg').innerText = `እንኳን ደህና መጡ፣ ${currentUser.first_name}!`;
+            if(currentUser.photo_url) {
+                document.getElementById('user-photo').src = currentUser.photo_url;
+            }
+
+            try {
+                // 1. ተጠቃሚው ዳታቤዝ ውስጥ መኖሩን ማረጋገጥ
+                let { data: userExist, error } = await _supabase
+                    .from('users')
+                    .select('*')
+                    .eq('telegram_id', currentUser.id)
+                    .single();
+
+                if (!userExist) {
+                    // 2. ከሌለ አዲስ ተጠቃሚ መመዝገብ
+                    await _supabase.from('users').insert([{
+                        telegram_id: currentUser.id,
+                        username: currentUser.username,
+                        first_name: currentUser.first_name
+                    }]);
+                }
+                
+                // በተሳካ ሁኔታ ሲጠናቀቅ ቀጥታ ወደ ዳሽቦርድ ማለፍ
+                switchScreen('dashboard-screen');
+            } catch (err) {
+                console.error("የዳታቤዝ ስህተት:", err);
+                switchScreen('dashboard-screen'); // ስህተት ቢኖርም ለሙከራ ያሳልፈው
+            }
+        }
+
+        // የፕሮፋይል መረጃን ሱፓቤስ ላይ መመዝገብ
+        async function saveProfile() {
+            const name = document.getElementById('prof-name').value;
+            const phone = document.getElementById('prof-phone').value;
+            const dept = document.getElementById('prof-dept').value;
+
+            if(!name || !phone || !dept) {
+                alert('እባክዎ ሁሉንም መረጃዎች በአግባቡ ይሙሉ!');
+                return;
+            }
+
+            tg.showProgress(); // የቴሌግራም መጫኛ ማሳያ
+
+            const { error } = await _supabase.from('profiles').insert([{
+                telegram_id: currentUser.id,
+                full_name: name,
+                phone: phone,
+                department: dept
+            }]);
+
+            tg.hideProgress();
+
+            if (!error) {
+                alert('መረጃዎ በተሳካ ሁኔታ ተመዝግቧል!');
+                switchScreen('dashboard-screen');
+            } else {
+                alert('ስህተት አጋጥሟል፡ ' + error.message);
+            }
+        }
+
+        // አፑ ሲከፈት ስራ እንዲጀምር ማድረግ
+        window.onload = initApp;
+    </script>
+</body>
+</html>
