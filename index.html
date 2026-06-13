@@ -77,7 +77,7 @@
             color: var(--tg-theme-text-color);
         }
 
-        .form-group input, .form-group select {
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 12px;
             border: 1px solid var(--tg-theme-hint-color);
@@ -115,6 +115,11 @@
             color: var(--tg-theme-hint-color);
             display: block;
         }
+        
+        #admin-btn {
+            display: none; /* መጀመሪያ የተደበቀ ነው */
+            background-color: #e67e22;
+        }
     </style>
 </head>
 <body>
@@ -132,13 +137,13 @@
         
         <button class="btn" onclick="switchScreen('announcement-screen')">📢 Announcement (ስራዎች)</button>
         <button class="btn" onclick="switchScreen('profile-screen')">👤 Profile (የግል መረጃ)</button>
+        <button id="admin-btn" class="btn" onclick="switchScreen('admin-screen')">💼 ስራ መለጠፊያ (Admin)</button>
         <button class="btn" style="background-color: var(--tg-theme-hint-color); cursor: not-allowed;">✨ በቅርቡ (More)</button>
     </div>
 
     <div id="announcement-screen" class="screen">
         <h3 style="border-bottom: 2px solid var(--tg-theme-button-color); padding-bottom: 10px;">📢 የቅርብ ጊዜ የስራ ማስታወቂያዎች</h3>
-        <div id="jobs-container">
-            </div>
+        <div id="jobs-container"></div>
         <button class="btn" onclick="switchScreen('dashboard-screen')" style="background: #7f8c8d; margin-top: 15px;">🔙 ወደ ዳሽቦርድ</button>
     </div>
 
@@ -166,36 +171,57 @@
         <button class="btn" onclick="switchScreen('dashboard-screen')" style="background: #7f8c8d;">🔙 ተመለስ</button>
     </div>
 
+    <div id="admin-screen" class="screen">
+        <h3 style="border-bottom: 2px solid #e67e22; padding-bottom: 10px; color: #e67e22;">💼 አዲስ ስራ መለጠፊያ ገጽ</h3>
+        <div class="form-group">
+            <label>የስራ መደብ (Title)</label>
+            <input type="text" id="job-title-input" placeholder="ምሳሌ፡ ጁኒየር ሶፍትዌር ዲቨሎፐር">
+        </div>
+        <div class="form-group">
+            <label>የስራ ዘርፍ (Category)</label>
+            <select id="job-cat-input">
+                <option value="IT">Software / IT</option>
+                <option value="Accounting">Accounting</option>
+                <option value="Health">Health</option>
+                <option value="Marketing">Marketing</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>የስራ ዝርዝር መግለጫ (Description)</label>
+            <textarea id="job-desc-input" rows="6" placeholder="የስራ መስፈርቶች፣ ደሞዝ፣ ማመልከቻ ሊንክ..."></textarea>
+        </div>
+        <button class="btn" style="background-color: #e67e22;" onclick="postJobByAdmin()">🚀 ስራውን በይፋ ልቀቅ</button>
+        <button class="btn" onclick="switchScreen('dashboard-screen')" style="background: #7f8c8d;">🔙 ተመለስ</button>
+    </div>
+
     <script>
-        // ቴሌግራም SDK ዝግጁ ማድረግ
+        // 🚨 ማሳሰቢያ፦ እዚህ ጋር የራስህን ትክክለኛ የቴሌግራም ID ተካው!
+        const ADMIN_TELEGRAM_ID = 8525980303; 
+
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // ሱፓቤስን ማገናኘት (የአንተ መረጃዎች)
         const supabaseUrl = 'https://erxhzjusebsmpepznaav.supabase.co';
         const supabaseKey = 'sb_publishable_4aNVArZpXVGdZR_AQ8H0Ug_XQdzP5Nc';
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         let currentUser = null;
 
-        // ገጾችን ለመቀያየር የሚረዳ ተግባር
         function switchScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
             
-            // ወደ ማስታወቂያ ገጽ ሲሄዱ ስራዎችን በራስ-ሰር እንዲጭን ማድረግ
             if(screenId === 'announcement-screen') {
                 loadApprovedJobs();
             }
         }
 
-        // ተጠቃሚውን የመለየት ስራ (Auto-Login)
         async function initApp() {
             const tgUser = tg.initDataUnsafe?.user;
             
             if (!tgUser) {
-                // በስልክ ብሮውዘር ብቻ ለሙከራ ሲከፈት
-                currentUser = { id: 12345678, first_name: "የሙከራ ተጠቃሚ", username: "test_user" };
+                // ለሙከራ ብሮውዘር ላይ ሲከፈት አድሚን እንዲሆን ያንተን ID በጊዜያዊነት እንሰጠዋለን
+                currentUser = { id: ADMIN_TELEGRAM_ID, first_name: "አስተዳዳሪ (ሙከራ)", username: "admin" };
             } else {
                 currentUser = {
                     id: tgUser.id,
@@ -205,22 +231,24 @@
                 };
             }
 
-            // ዳሽቦርዱን ማደስ
             document.getElementById('welcome-msg').innerText = `እንኳን ደህና መጡ፣ ${currentUser.first_name}!`;
             if(currentUser.photo_url) {
                 document.getElementById('user-photo').src = currentUser.photo_url;
             }
 
+            // የቴሌግራም IDህ ከአድሚን ID ጋር እኩል ከሆነ ቁልፉን ማሳየት
+            if (Number(currentUser.id) === Number(ADMIN_TELEGRAM_ID)) {
+                document.getElementById('admin-btn').style.display = 'block';
+            }
+
             try {
-                // 1. ተጠቃሚው users table ውስጥ መኖሩን ማረጋገጥ
-                let { data: userExist, error } = await _supabase
+                let { data: userExist } = await _supabase
                     .from('users')
                     .select('*')
                     .eq('telegram_id', currentUser.id)
                     .maybeSingle();
 
                 if (!userExist) {
-                    // 2. ከሌለ አዲስ ተጠቃሚ መመዝገብ
                     await _supabase.from('users').insert([{
                         telegram_id: currentUser.id,
                         username: currentUser.username,
@@ -230,12 +258,11 @@
                 
                 switchScreen('dashboard-screen');
             } catch (err) {
-                console.error("የዳታቤዝ ስህተት:", err);
+                console.error(err);
                 switchScreen('dashboard-screen');
             }
         }
 
-        // የፕሮፋይል መረጃን ሱፓቤስ ላይ መመዝገብ
         async function saveProfile() {
             const name = document.getElementById('prof-name').value;
             const phone = document.getElementById('prof-phone').value;
@@ -261,14 +288,13 @@
                 alert('መረጃዎ በተሳካ ሁኔታ ተመዝግቧል!');
                 switchScreen('dashboard-screen');
             } else {
-                alert('ስህተት አጋጥሟል፡ ' + error.message);
+                alert('ስህተት፡ ' + error.message);
             }
         }
 
-        // ዳታቤዝ ውስጥ ያሉ የጸደቁ ስራዎችን አምጥቶ ማሳያ
         async function loadApprovedJobs() {
             const container = document.getElementById('jobs-container');
-            container.innerHTML = '<p style="color: var(--tg-theme-hint-color); text-align:center;">ስራዎች በመጫን ላይ ናቸው...</p>';
+            container.innerHTML = '<p style="text-align:center; color:var(--tg-theme-hint-color);">ስራዎች በመጫን ላይ ናቸው...</p>';
 
             const { data: jobs, error } = await _supabase
                 .from('jobs')
@@ -277,11 +303,11 @@
                 .order('id', { ascending: false });
 
             if (error || !jobs || jobs.length === 0) {
-                container.innerHTML = '<p style="color: var(--tg-theme-hint-color); text-align:center; margin-top:20px;">ለጊዜው ምንም አዲስ የስራ ማስታወቂያ የለም።</p>';
+                container.innerHTML = '<p style="text-align:center; color:var(--tg-theme-hint-color); margin-top:20px;">ለጊዜው ምንም አዲስ የስራ ማስታወቂያ የለም።</p>';
                 return;
             }
 
-            container.innerHTML = ''; // ማሳያውን ማጽዳት
+            container.innerHTML = '';
             jobs.forEach(job => {
                 const card = document.createElement('div');
                 card.className = 'job-card';
@@ -294,7 +320,40 @@
             });
         }
 
-        // አፑ ሲከፈት ስራ እንዲጀምር ማድረግ
+        // አድሚኑ በቀጥታ ከአፑ ላይ ስራ እንዲለቅ ማድረጊያ ፈንክሽን
+        async function postJobByAdmin() {
+            const title = document.getElementById('job-title-input').value;
+            const cat = document.getElementById('job-cat-input').value;
+            const desc = document.getElementById('job-desc-input').value;
+
+            if(!title || !desc) {
+                alert('እባክዎ የስራውን ርዕስ እና ዝርዝር መግለጫ ያስገቡ!');
+                return;
+            }
+
+            if(tg.showProgress) tg.showProgress();
+
+            // በቀጥታ is_approved=true ሆኖ ይለጠፋል
+            const { error } = await _supabase.from('jobs').insert([{
+                title: title,
+                category: cat,
+                description: desc,
+                is_approved: true
+            }]);
+
+            if(tg.hideProgress) tg.hideProgress();
+
+            if (!error) {
+                alert('🚀 ስራው በተሳካ ሁኔታ ተለጥፏል!');
+                // ፎርሙን ማጽዳት
+                document.getElementById('job-title-input').value = '';
+                document.getElementById('job-desc-input').value = '';
+                switchScreen('dashboard-screen');
+            } else {
+                alert('ስራውን ለመለጠፍ አልተቻለም፡ ' + error.message);
+            }
+        }
+
         window.onload = initApp;
     </script>
 </body>
