@@ -21,6 +21,7 @@
             --card-bg: #ffffff;
             --danger-red: #ef4444;
             --success-green: #22c55e;
+            --admin-orange: #e67e22;
         }
 
         body {
@@ -32,7 +33,7 @@
             box-sizing: border-box;
         }
 
-        /* 1. ANIMATED SPLASH SCREEN WITH BG GRAPHICS */
+        /* SPLASH SCREEN WITH BG GRAPHICS */
         #splash-screen {
             position: fixed;
             top: 0;
@@ -126,6 +127,7 @@
         .welcome-text h2 { margin: 0; font-size: 20px; font-weight: 700; }
         .welcome-text p { margin: 4px 0 0 0; font-size: 13px; opacity: 0.9; }
 
+        /* NOTIFICATION BANNER WITH BADGE */
         .alert-banner {
             background: #ffffff;
             border-radius: 16px;
@@ -136,10 +138,40 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             margin-top: -25px;
             margin-bottom: 25px;
+            position: relative;
         }
 
         .alert-left { display: flex; align-items: center; gap: 12px; }
-        .alert-icon-box { background: #eff6ff; color: var(--secondary-blue); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .alert-icon-box { 
+            background: #eff6ff; 
+            color: var(--secondary-blue); 
+            width: 45px; 
+            height: 45px; 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 20px;
+            position: relative;
+        }
+
+        /* RED BADGE FOR NOTIFICATION */
+        .notif-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background-color: var(--danger-red);
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
 
         .section-title { font-size: 16px; font-weight: 700; color: var(--text-dark); margin: 20px 0 15px 0; }
 
@@ -155,7 +187,12 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.03);
             border: 1px solid #f1f5f9;
             cursor: pointer;
+            transition: all 0.2s ease;
         }
+        .menu-card:active { transform: scale(0.98); }
+
+        .card-left { display: flex; align-items: center; gap: 14px; }
+        .card-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
 
         .stats-grid {
             display: grid;
@@ -196,14 +233,35 @@
         .job-time { font-size: 11px; color: var(--text-muted); display: block; margin-top: 8px; text-align: right; }
         
         /* ADMIN ACTION BUTTONS */
-        .admin-action-btn { background: var(--danger-red); color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        .admin-action-btn { background: var(--danger-red); color: white; border: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 10px; display: inline-flex; align-items: center; gap: 6px; }
         
-        .admin-sub-section { border-bottom: 1px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 25px; }
+        .admin-row-section { display: none; margin-top: 15px; animation: fadeIn 0.3s ease; }
+        .admin-row-section.active { display: block; }
 
         /* USER INFO CARDS FOR ADMIN */
-        .user-info-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
-        .user-info-card h5 { margin: 0 0 6px 0; font-size: 15px; color: var(--primary-blue); }
-        .user-info-card p { margin: 4px 0; font-size: 13px; }
+        .user-info-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .user-info-card h5 { margin: 0 0 8px 0; font-size: 16px; color: var(--primary-blue); }
+        .user-info-card p { margin: 5px 0; font-size: 13.5px; color: #334155; }
+
+        /* VERIFIED CONGRATS BOX */
+        .verified-status-box {
+            background-color: #f0fdf4;
+            border: 2px solid var(--success-green);
+            color: #166534;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(34, 197, 94, 0.15);
+            animation: scaleUp 0.4s ease;
+        }
+        .verified-status-box i {
+            font-size: 24px;
+            color: var(--success-green);
+            margin-bottom: 6px;
+            display: block;
+        }
 
         /* BOTTOM NAV */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; height: 72px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -4px 15px rgba(0,0,0,0.06); border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 900; }
@@ -212,18 +270,17 @@
         .nav-item.active { color: var(--primary-blue); font-weight: 700; }
         #admin-nav-item { display: none; }
 
-        /* SAVED PROFILE DISPLAY DISPLAY */
-        .saved-profile-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 14px; margin-bottom: 15px; }
+        .saved-profile-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 14px; margin-bottom: 15px; }
 
         /* ANIMATIONS */
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes scaleUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes scaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8deg); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <!-- 1. SPLASH SCREEN -->
+    <!-- SPLASH SCREEN -->
     <div id="splash-screen">
         <div class="splash-bg-circles"></div>
         <div class="splash-logo-container">
@@ -242,7 +299,7 @@
         <div id="admin-nav-item" class="nav-item" onclick="handleNav('admin-screen', this)"><i class="fa-solid fa-user-shield"></i>አስተዳዳሪ</div>
     </div>
 
-    <!-- 2. DASHBOARD SCREEN -->
+    <!-- DASHBOARD SCREEN -->
     <div id="dashboard-screen" class="screen active">
         <div class="top-banner">
             <div class="user-profile-section">
@@ -254,12 +311,16 @@
             </div>
         </div>
 
-        <div class="alert-banner">
+        <!-- NOTIFICATION BANNER WITH LIVE BADGE -->
+        <div class="alert-banner" onclick="switchScreenDirect('announcement-screen')">
             <div class="alert-left">
-                <div class="alert-icon-box"><i class="fa-solid fa-bell"></i></div>
+                <div class="alert-icon-box">
+                    <i class="fa-solid fa-bell"></i>
+                    <div id="badge-count-red" class="notif-badge" style="display:none;">0</div>
+                </div>
                 <div>
                     <div style="font-weight:700; font-size:14px;">የቀን ማስታወቂያዎች</div>
-                    <div style="font-size:12px; color:var(--text-muted);">የዛሬ አዳዲስ የወጡ ስrules</div>
+                    <div style="font-size:12px; color:var(--text-muted);">ባለፉት 24 ሰዓት የወጡ አዳዲስ ስራዎች</div>
                 </div>
             </div>
             <span id="today-jobs-badge" style="background:#eff6ff; color:var(--secondary-blue); padding:4px 10px; border-radius:20px; font-size:12px; font-weight:700;">0 ></span>
@@ -292,25 +353,31 @@
         <div class="section-title"><i class="fa-solid fa-chart-line"></i> የእንቅስቃሴ ስታቲስቲክስ (Live)</div>
         <div class="stats-grid">
             <div class="stat-box"><div id="stat-today-jobs" class="stat-num">0</div><div class="stat-label">የዛሬ ስራዎች</div></div>
-            <div class="stat-box"><div id="stat-total-users" class="stat-num font-weight:800;">0</div><div class="stat-label">ተመዝጋቢዎች</div></div>
+            <div class="stat-box"><div id="stat-total-users" class="stat-num">0</div><div class="stat-label">ተመዝጋቢዎች</div></div>
             <div class="stat-box"><div id="stat-total-jobs" class="stat-num">0</div><div class="stat-label">ጠቅላላ ስራዎች</div></div>
         </div>
     </div>
 
-    <!-- 3. ANNOUNCEMENT SCREEN -->
+    <!-- ANNOUNCEMENT SCREEN -->
     <div id="announcement-screen" class="screen">
         <h3 style="font-weight:800; margin-bottom:20px; color:var(--primary-blue);"><i class="fa-solid fa-bullhorn"></i> የቅርብ ጊዜ ስራዎች</h3>
         <div id="jobs-container"></div>
     </div>
 
-    <!-- 4. PROFILE SCREEN -->
+    <!-- PROFILE SCREEN -->
     <div id="profile-screen" class="screen">
         <h3 style="font-weight:800; margin-bottom:15px; color:var(--primary-blue);"><i class="fa-solid fa-id-card"></i> የእርስዎን መረጃ ያሟሉ</h3>
         
+        <!-- 🎉 VERIFIED CONGRATULATION BOX (አድሚን ቬሪፋይ ሲያደርገው የሚበራ) -->
+        <div id="verified-congrats-box" style="display:none;" class="verified-status-box">
+            <i class="fa-solid fa-circle-check"></i>
+            Verified by Admin, Congratulations! 
+        </div>
+
         <!-- የሞላውን መረጃ መልሶ ማሳያ ክፍል -->
         <div id="saved-profile-container" style="display:none;" class="saved-profile-box">
-            <h4 style="margin:0 0 8px 0; color:var(--success-green);"><i class="fa-solid fa-circle-check"></i> የተመዘገበ መረጃዎ</h4>
-            <p id="saved-profile-details" style="font-size:13px; margin:0; line-height:1.6; color:#166534;"></p>
+            <h4 style="margin:0 0 8px 0; color:var(--primary-blue);"><i class="fa-solid fa-circle-info"></i> አሁን የተመዘገበው መረጃዎ</h4>
+            <p id="saved-profile-details" style="font-size:13px; margin:0; line-height:1.6; color:#1e3a8a;"></p>
         </div>
 
         <div class="form-container">
@@ -357,13 +424,19 @@
         </div>
     </div>
 
-    <!-- 5. ADMIN MASTER SCREEN -->
+    <!-- ADMIN MASTER SCREEN (CLEAN ROW STYLE) -->
     <div id="admin-screen" class="screen">
-        <h3 style="font-weight:800; margin-bottom:20px; color:#e67e22;"><i class="fa-solid fa-user-shield"></i> የ SiraLink አድሚን ማዕከል</h3>
+        <h3 style="font-weight:800; margin-bottom:20px; color:var(--admin-orange);"><i class="fa-solid fa-user-shield"></i> የ SiraLink አድሚን ማዕከል</h3>
         
-        <!-- 🔐 PART A: POST JOB -->
-        <div class="admin-sub-section">
-            <h4 style="color:#e67e22; margin-top:0;"><i class="fa-solid fa-plus-circle"></i> 1. አዲስ ስራ መለጠፊያ</h4>
+        <!-- ROW BUTTON 1: POST JOB -->
+        <div class="menu-card" onclick="toggleAdminRow('admin-row-post')">
+            <div class="card-left">
+                <div class="card-icon" style="background:#fff3e0; color:var(--admin-orange);"><i class="fa-solid fa-plus-circle"></i></div>
+                <div style="font-weight:700; font-size:15px;">1. አዲስ ስራ መለጠፊያ (Post Job)</div>
+            </div>
+            <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <div id="admin-row-post" class="admin-row-section">
             <div class="form-container">
                 <div class="form-group">
                     <label>የስራ መደብ (Title)</label>
@@ -381,21 +454,31 @@
                     <label>የስራ ዝርዝር መግለጫ (Description)</label>
                     <textarea id="job-desc-input" rows="5" placeholder="የስራ መስፈርቶች፣ ደሞዝ..."></textarea>
                 </div>
-                <button class="btn" style="width:100%; padding:12px; background:#e67e22; color:white; border:none; border-radius:10px; font-weight:700;" onclick="postJobByAdmin(false)">🚀 በይፋ ልቀቅ</button>
+                <button class="btn" style="width:100%; padding:12px; background:var(--admin-orange); color:white; border:none; border-radius:10px; font-weight:700;" onclick="postJobByAdmin()">🚀 በይፋ ልቀቅ</button>
             </div>
         </div>
 
-        <!-- 🔐 PART B: VIEW & VERIFY USERS WITH CV INFO -->
-        <div class="admin-sub-section">
-            <h4 style="color:var(--primary-blue);"><i class="fa-solid fa-users-viewfinder"></i> 2. የተመዘገቡ ተጠቃሚዎች እና CV ማያ</h4>
-            <button class="btn" style="background:var(--primary-blue); color:white; border:none; padding:10px; border-radius:8px; font-size:13px; font-weight:700; width:100%; margin-bottom:12px;" onclick="loadUsersForAdmin()">🔄 የተጠቃሚዎችን መረጃ አምጣ/አድስ</button>
+        <!-- ROW BUTTON 2: VIEW USERS & CV -->
+        <div class="menu-card" onclick="toggleAdminRow('admin-row-users'); loadUsersForAdmin();">
+            <div class="card-left">
+                <div class="card-icon" style="background:#eff6ff; color:var(--primary-blue);"><i class="fa-solid fa-users-viewfinder"></i></div>
+                <div style="font-weight:700; font-size:15px;">2. ተጠቃሚዎች እና CV ማያ (View Users)</div>
+            </div>
+            <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <div id="admin-row-users" class="admin-row-section">
             <div id="admin-users-container"></div>
         </div>
 
-        <!-- 🔐 PART C: DELETE OLD JOBS -->
-        <div class="admin-sub-section">
-            <h4 style="color:var(--danger-red);"><i class="fa-solid fa-trash-can"></i> 3. ጊዜ ያለፈባቸውን ስራዎች ማጥፊያ</h4>
-            <button class="btn" style="background:var(--danger-red); color:white; border:none; padding:10px; border-radius:8px; font-size:13px; font-weight:700; width:100%; margin-bottom:12px;" onclick="loadJobsForDeletion()">📂 የለጠፍካቸውን ስራዎች ዝርዝር አምጣ</button>
+        <!-- ROW BUTTON 3: DELETE JOBS -->
+        <div class="menu-card" onclick="toggleAdminRow('admin-row-delete'); loadJobsForDeletion();">
+            <div class="card-left">
+                <div class="card-icon" style="background:#fdf2f2; color:var(--danger-red);"><i class="fa-solid fa-trash-can"></i></div>
+                <div style="font-weight:700; font-size:15px;">3. ጊዜ ያለፈባቸውን ስራዎች ማጥፊያ</div>
+            </div>
+            <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <div id="admin-row-delete" class="admin-row-section">
             <div id="admin-delete-jobs-container"></div>
         </div>
     </div>
@@ -422,6 +505,13 @@
             }
         }
 
+        function toggleAdminRow(rowId) {
+            const row = document.getElementById(rowId);
+            const isOpen = row.classList.contains('active');
+            document.querySelectorAll('.admin-row-section').forEach(r => r.classList.remove('active'));
+            if(!isOpen) row.classList.add('active');
+        }
+
         function handleNav(screenId, element) {
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             element.classList.add('active');
@@ -445,7 +535,7 @@
             if(screenId === 'profile-screen') checkExistingProfile();
         }
 
-        // 📊 ሪል-ታይም የዳሽቦርድ ስታቲስቲክስ መቆጠሪያ
+        // 📊 ሪል-ታይም የዳሽቦርድ ስታቲስቲክስ መቆጠሪያ (ከ24 ሰዓት የተስተካከለ አቆጣጠር ጋር)
         async function fetchLiveStatistics() {
             try {
                 // 1. ጠቅላላ ተጠቃሚዎች
@@ -456,12 +546,28 @@
                 const { count: jobsCount } = await _supabase.from('jobs').select('*', { count: 'exact', head: true }).eq('is_approved', true);
                 document.getElementById('stat-total-jobs').innerText = jobsCount || 0;
 
-                // 3. የዛሬ ስራዎች (ባለፉት 24 ሰዓታት ውስጥ የወጡ)
-                const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-                const { count: todayJobsCount } = await _supabase.from('jobs').select('*', { count: 'exact', head: true }).eq('is_approved', true).gte('created_at', oneDayAgo);
+                // 3. የዛሬ ስራዎች (ልዩነትን ለማስተካከል ከአሁኑ ሰዓት 24 ሰዓት ወደኋላ)
+                const now = new Date();
+                const past24Hours = new Date(now.getTime() - (24 * 60 * 60 * 1000)).toISOString();
+
+                const { count: todayJobsCount } = await _supabase.from('jobs')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('is_approved', true)
+                    .gte('created_at', past24Hours);
                 
-                document.getElementById('stat-today-jobs').innerText = todayJobsCount || 0;
-                document.getElementById('today-jobs-badge').innerText = `${todayJobsCount || 0} >`;
+                const finalTodayCount = todayJobsCount || 0;
+                document.getElementById('stat-today-jobs').innerText = finalTodayCount;
+                document.getElementById('today-jobs-badge').innerText = `${finalTodayCount} >`;
+
+                // የደወል ማሳያ ቀይ ባጅ (Red Badge)
+                const badge = document.getElementById('badge-count-red');
+                if(finalTodayCount > 0) {
+                    badge.innerText = finalTodayCount;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+
             } catch (err) { console.error(err); }
         }
 
@@ -497,10 +603,11 @@
             }, 2500);
         }
 
-        // የራስን የሞሉትን መረጃ ማረጋገጫ
+        // የራስን የሞሉትን መረጃ እና የVerification ሁኔታ ማረጋገጫ
         async function checkExistingProfile() {
             const container = document.getElementById('saved-profile-container');
             const detailsText = document.getElementById('saved-profile-details');
+            const congratsBox = document.getElementById('verified-congrats-box');
             
             const { data: prof } = await _supabase.from('profiles').select('*').eq('telegram_id', currentUser.id).order('id', { ascending: false }).limit(1).maybeSingle();
             
@@ -510,10 +617,18 @@
                     <strong>👤 ስም፦</strong> ${prof.full_name}<br>
                     <strong>📞 ስልክ፦</strong> ${prof.phone}<br>
                     <strong>💼 ዘርፍ፦</strong> ${prof.department}<br>
-                    <strong>📎 ፋይሎች፦</strong> ${prof.cv_url || 'የሉም'}
+                    <strong>📎 ፋይሎች እና ሜታ፦</strong> ${prof.cv_url || 'የሉም'}
                 `;
+
+                // አድሚን ቬሪፋይ ካደረገው (የመጀመሪያው ፊደል [V] ከሆነ) ማሳያ
+                if(prof.full_name.startsWith('✅')) {
+                    congratsBox.style.display = 'block';
+                } else {
+                    congratsBox.style.display = 'none';
+                }
             } else {
                 container.style.display = 'none';
+                congratsBox.style.display = 'none';
             }
         }
 
@@ -526,7 +641,7 @@
             const sexRadio = document.querySelector('input[name="prof-sex"]:checked');
 
             if(!name || !phone || !dept || !address || !sexRadio) {
-                alert('እባክዎ ሁሉንም መረጃዎች (ስም፣ ጾታ፣ አድራሻ፣ ስልክ እና ዲፓርትመንት) ያሟሉ!');
+                alert('እባክዎ ሁሉንም መረጃዎች ያሟሉ!');
                 return;
             }
 
@@ -538,7 +653,6 @@
             const photoLabel = photoFile ? photoFile.name : 'No Photo';
             const cvLabel = cvFile ? cvFile.name : 'No CV';
 
-            // ሁሉንም አዳዲስ መረጃዎች በአንድነት አቀናጅቶ cv_url ውስጥ በቴክስት መልክ ማስቀመጥ (ሰንጠረዡ ሳይበላሽ)
             const compiledMeta = `ጾታ: ${sex} | አድራሻ: ${address} | ፎቶ: ${photoLabel} | CV: ${cvLabel}`;
 
             const { error } = await _supabase.from('profiles').insert([{
@@ -560,10 +674,10 @@
             }
         }
 
-        // ስራዎችን ለተጠቃሚ ማሳያ (ከቀን እና ሰዓት ጋር)
+        // ስራዎችን ለተጠቃሚ ማሳያ
         async function loadApprovedJobs() {
             const container = document.getElementById('jobs-container');
-            container.innerHTML = '<p style="text-align:center; color:var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> ስራዎች በመጫን ላይ ናቸው...</p>';
+            container.innerHTML = '<p style="text-align:center; color:var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> በመጫን ላይ...</p>';
 
             const { data: jobs, error } = await _supabase.from('jobs').select('*').eq('is_approved', true).order('id', { ascending: false });
 
@@ -577,10 +691,8 @@
                 const card = document.createElement('div');
                 card.className = 'job-card';
                 
-                // የኢትዮጵያ ሰዓት አቆጣጠር ፎርማት
                 const jobDate = job.created_at ? new Date(job.created_at).toLocaleString('am-ET', { hour12: true }) : 'በቅርቡ';
 
-                // ፎቶ ካለው ማሳያ
                 let imgTag = '';
                 if(job.category && job.category.startsWith('http')) {
                     imgTag = `<img src="${job.category}" style="display:block;">`;
@@ -597,7 +709,7 @@
             });
         }
 
-        // 🔐 ADMIN: ስራ መለጠፊያ (ከፎቶ ሊንክ ጋር)
+        // 🔐 ADMIN: ስራ መለጠፊያ
         async function postJobByAdmin() {
             const title = document.getElementById('job-title-input').value;
             let cat = document.getElementById('job-cat-input').value;
@@ -609,7 +721,6 @@
                 return;
             }
 
-            // ፎቶ ሊንክ ካለው በ category ውስጥ በብልሃት እናስቀምጠዋለን (የድሮው ሰንጠረዥ አወቃቀር እንዳይፈርስ)
             if(photoUrl) { cat = photoUrl; }
 
             if(tg.showProgress) tg.showProgress();
@@ -619,7 +730,7 @@
             if(tg.hideProgress) tg.hideProgress();
 
             if (!error) {
-                alert('🚀 አዲስ ስራ ወዲያውኑ በይፋ ተለጥፏል!');
+                alert('🚀 አዲስ ስራ በይፋ ተለጥፏል!');
                 document.getElementById('job-title-input').value = '';
                 document.getElementById('job-photo-url-input').value = '';
                 document.getElementById('job-desc-input').value = '';
@@ -629,15 +740,15 @@
             }
         }
 
-        // 🔐 ADMIN: ተጠቃሚዎችን እና CV መረጃ ማያ + Verify Button
+        // 🔐 ADMIN: ተጠቃሚዎችን ማያ እና Verify ማድረጊያ (Live DB Update)
         async function loadUsersForAdmin() {
             const container = document.getElementById('admin-users-container');
-            container.innerHTML = '<p>በመጫን ላይ...</p>';
+            container.innerHTML = '<p style="padding:10px;">በመጫን ላይ...</p>';
 
             const { data: profiles, error } = await _supabase.from('profiles').select('*').order('id', { ascending: false });
 
             if(error || !profiles || profiles.length === 0) {
-                container.innerHTML = '<p>ምንም የተመዘገበ ተጠቃሚ የለም።</p>';
+                container.innerHTML = '<p style="padding:10px;">ምንም የተመዘገበ ተጠቃሚ የለም።</p>';
                 return;
             }
 
@@ -645,44 +756,73 @@
             profiles.forEach(p => {
                 const div = document.createElement('div');
                 div.className = 'user-info-card';
+                
+                const isAlreadyVerified = p.full_name.startsWith('✅');
+                const verifyBtnHtml = isAlreadyVerified 
+                    ? `<span style="color:var(--success-green); font-weight:bold; font-size:13px;"><i class="fa-solid fa-badge-check"></i> Already Verified ✓</span>`
+                    : `<button class="admin-action-btn" style="background:var(--success-green);" onclick="verifyUserByAdmin(${p.id}, '${p.full_name}')"><i class="fa-solid fa-check-double"></i> Verify User</button>`;
+
                 div.innerHTML = `
                     <h5>👤 ${p.full_name}</h5>
                     <p><strong>ስልክ፦</strong> ${p.phone}</p>
                     <p><strong>ዲፓርትመንት፦</strong> ${p.department}</p>
-                    <p style="color:var(--secondary-blue); font-size:12px;"><strong>CV & Meta Details፦</strong> ${p.cv_url || 'የለም'}</p>
-                    <button class="admin-action-btn" style="background:var(--success-green); margin-right:5px;" onclick="alert('ተጠቃሚው ${p.full_name} ቬሪፋይድ ሆኗል! (Verified ✓)')">✓ Verify User</button>
+                    <p style="color:var(--secondary-blue); font-size:12.5px; background:#f1f5f9; padding:8px; border-radius:6px; word-break:break-all;"><strong>📎 CV & Meta Details፦</strong><br>${p.cv_url || 'የለም'}</p>
+                    <div style="margin-top:10px;">${verifyBtnHtml}</div>
                 `;
                 container.appendChild(div);
             });
         }
 
+        // 🔐 ADMIN: ተጠቃሚን ሰንጠረዥ ላይ Verify የማድረጊያ ተግባር
+        async function verifyUserByAdmin(profileId, currentName) {
+            if(!confirm(`እርግጠኛ ነዎት ይህንን ተጠቃሚ ማረጋገጥ (Verify) ይፈልጋሉ?`)) return;
+
+            if(tg.showProgress) tg.showProgress();
+
+            // በስሙ መጀመሪያ ላይ የራይት ምልክት በመጨመር ዳታቤዙን እናዘምነዋለን
+            const verifiedName = `✅ ${currentName}`;
+
+            const { error } = await _supabase.from('profiles')
+                .update({ full_name: verifiedName })
+                .eq('id', profileId);
+
+            if(tg.hideProgress) tg.hideProgress();
+
+            if(!error) {
+                alert('✓ ተጠቃሚው በተሳካ ሁኔታ ቬሪፋይድ ሆኗል!');
+                loadUsersForAdmin();
+            } else {
+                alert('ስህተት፡ ' + error.message);
+            }
+        }
+
         // 🔐 ADMIN: ስራዎችን ማጥፊያ ክፍል ማምጫ
         async function loadJobsForDeletion() {
             const container = document.getElementById('admin-delete-jobs-container');
-            container.innerHTML = '<p>ስራዎች በመጫን ላይ...</p>';
+            container.innerHTML = '<p style="padding:10px;">ስራዎች በመጫን ላይ...</p>';
 
             const { data: jobs, error } = await _supabase.from('jobs').select('*').order('id', { ascending: false });
 
             if(error || !jobs || jobs.length === 0) {
-                container.innerHTML = '<p>የሚጠፋ ስራ አልተገኘም።</p>';
+                container.innerHTML = '<p style="padding:10px;">የሚጠፋ ስራ አልተገኘም።</p>';
                 return;
             }
 
             container.innerHTML = '';
             jobs.forEach(j => {
                 const div = document.createElement('div');
-                div.style = 'background:#fff5f5; border:1px solid #fed7d7; padding:12px; border-radius:10px; margin-bottom:10px;';
+                div.style = 'background:#ffffff; border:1px solid #fed7d7; padding:14px; border-radius:12px; margin-bottom:12px; box-shadow:0 2px 5px rgba(0,0,0,0.02);';
                 div.innerHTML = `
                     <div style="font-weight:700; font-size:14px; color:var(--text-dark);">${j.title}</div>
-                    <button class="admin-action-btn" onclick="deleteJobByAdmin(${j.id})"><i class="fa-solid fa-trash"></i> ይህንን ስራ በምስል ሰርዝ (Delete)</button>
+                    <button class="admin-action-btn" onclick="deleteJobByAdmin(${j.id})"><i class="fa-solid fa-trash"></i> ይህንን ስራ ሰርዝ (Delete)</button>
                 `;
                 container.appendChild(div);
             });
         }
 
-        // 🔐 ADMIN: ስራን ሙሉ በሙሉ ከዳታቤዝ ማጥፊያ (Delete)
+        // 🔐 ADMIN: ስራን ከዳታቤዝ ማጥፊያ
         async function deleteJobByAdmin(jobId) {
-            if(!confirm('እርግጠኛ ነዎት ይህ የስራ ማስታወቂያ ሙሉ በሙሉ ይጥፋ?')) return;
+            if(!confirm('እርግጠኛ ነዎት ይህ የስራ ማስታወቂያ ይጥፋ?')) return;
 
             if(tg.showProgress) tg.showProgress();
 
@@ -691,7 +831,7 @@
             if(tg.hideProgress) tg.hideProgress();
 
             if(!error) {
-                alert('🗑️ ስራው በተሳካ ሁኔታ ከዳታቤዝ ተሰርዟል!');
+                alert('🗑️ ስራው በተሳካ ሁኔታ ተሰርዟል!');
                 loadJobsForDeletion();
                 fetchLiveStatistics();
             } else {
