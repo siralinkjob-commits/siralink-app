@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SiraLink Mini App</title>
+    <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -16,6 +19,8 @@
             --text-dark: #0f172a;
             --text-muted: #64748b;
             --card-bg: #ffffff;
+            --danger-red: #ef4444;
+            --success-green: #22c55e;
         }
 
         body {
@@ -25,48 +30,68 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-user-select: none;
         }
 
-        /* 1. PREMIUM SPLASH SCREEN */
+        /* 1. ANIMATED SPLASH SCREEN WITH BG GRAPHICS */
         #splash-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, var(--primary-blue), #1d4ed8);
+            background: radial-gradient(circle at center, #2563eb, #1e40af);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 9999;
             color: white;
-            transition: opacity 0.5s ease-out;
+            overflow: hidden;
+        }
+
+        .splash-bg-circles {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+            top: -50px;
+            right: -50px;
+        }
+
+        .splash-logo-container {
+            text-align: center;
+            animation: scaleUp 0.6s ease-out;
+        }
+
+        .splash-icon {
+            font-size: 55px;
+            margin-bottom: 15px;
+            color: #3b82f6;
+            text-shadow: 0 0 20px rgba(59,130,246,0.5);
         }
 
         .splash-logo {
-            font-size: 42px;
-            font-weight: 800;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            animation: pulse 2s infinite;
+            font-size: 46px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            margin: 0;
         }
 
         .spinner {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border: 4px solid rgba(255,255,255,0.1);
             border-top-color: #ffffff;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-top: 20px;
+            margin-top: 30px;
         }
 
-        /* 2. APP LAYOUT & SCREENS */
+        /* SCREENS LAYOUT */
         .screen {
             display: none;
-            padding: 20px 16px 90px 16px; /* ለታችኛው ሜኑ ቦታ ይተዋል */
+            padding: 20px 16px 95px 16px;
             animation: fadeIn 0.4s ease;
         }
 
@@ -82,7 +107,6 @@
             padding: 30px 20px 40px 20px;
             color: white;
             margin: 0 -16px 20px -16px;
-            position: relative;
         }
 
         .user-profile-section {
@@ -99,19 +123,9 @@
             object-fit: cover;
         }
 
-        .welcome-text h2 {
-            margin: 0;
-            font-size: 20px;
-            font-weight: 700;
-        }
+        .welcome-text h2 { margin: 0; font-size: 20px; font-weight: 700; }
+        .welcome-text p { margin: 4px 0 0 0; font-size: 13px; opacity: 0.9; }
 
-        .welcome-text p {
-            margin: 4px 0 0 0;
-            font-size: 13px;
-            opacity: 0.9;
-        }
-
-        /* MINI BANNER (ALERT) */
         .alert-banner {
             background: #ffffff;
             border-radius: 16px;
@@ -120,36 +134,16 @@
             align-items: center;
             justify-content: space-between;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            margin-top: -20px;
+            margin-top: -25px;
             margin-bottom: 25px;
         }
 
-        .alert-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .alert-left { display: flex; align-items: center; gap: 12px; }
+        .alert-icon-box { background: #eff6ff; color: var(--secondary-blue); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
 
-        .alert-icon-box {
-            background: #eff6ff;
-            color: var(--secondary-blue);
-            width: 45px;
-            height: 45px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
+        .section-title { font-size: 16px; font-weight: 700; color: var(--text-dark); margin: 20px 0 15px 0; }
 
-        /* PREMIUM MENUS (CARDS) */
-        .section-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 15px;
-        }
-
+        /* CARDS */
         .menu-card {
             background: var(--card-bg);
             border-radius: 16px;
@@ -161,187 +155,86 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.03);
             border: 1px solid #f1f5f9;
             cursor: pointer;
-            transition: transform 0.2s;
         }
 
-        .menu-card:active {
-            transform: scale(0.98);
-        }
-
-        .card-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .card-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-
-        .arrow-icon {
-            color: var(--text-muted);
-            font-size: 14px;
-        }
-
-        /* STATS GRID */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-top: 15px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
         }
 
         .stat-box {
             background: white;
-            padding: 16px;
-            border-radius: 16px;
+            padding: 14px 8px;
+            border-radius: 14px;
             text-align: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.02);
             border: 1px solid #f1f5f9;
         }
 
-        .stat-num {
-            font-size: 22px;
-            font-weight: 800;
-            color: var(--primary-blue);
-            margin-bottom: 4px;
-        }
+        .stat-num { font-size: 20px; font-weight: 800; color: var(--primary-blue); }
+        .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
 
-        .stat-label {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        /* FORMS & INPUTS */
-        .form-container {
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-        }
-
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
+        /* FORMS & CONTAINERS */
+        .form-container { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 20px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 600; }
         .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid #cbd5e1;
-            border-radius: 12px;
-            background: #f8fafc;
-            color: var(--text-dark);
-            box-sizing: border-box;
-            font-size: 15px;
-            outline: none;
+            width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; background: #f8fafc; color: var(--text-dark); box-sizing: border-box; font-size: 15px; outline: none;
         }
+        
+        .radio-group { display: flex; gap: 20px; margin-top: 5px; }
+        .radio-option { display: flex; align-items: center; gap: 6px; font-size: 15px; }
+        .radio-option input { width: auto; }
 
-        .form-group input:focus {
-            border-color: var(--secondary-blue);
-            background: #ffffff;
-        }
+        .file-box { border: 2px dashed #cbd5e1; padding: 12px; border-radius: 10px; text-align: center; background: #f8fafc; cursor: pointer; position: relative; }
+        .file-box input[type="file"] { position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; }
 
-        /* FILE UPLOAD HIGHLIGHT */
-        .file-box {
-            border: 2px dashed #cbd5e1;
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            background: #f8fafc;
-            cursor: pointer;
-            position: relative;
-        }
+        /* JOB CARDS WITH TIMESTAMPS & PHOTOS */
+        .job-card { background: white; border-radius: 16px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border-left: 5px solid var(--secondary-blue); position: relative; }
+        .job-card img { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; margin-bottom: 12px; display: none; }
+        .job-time { font-size: 11px; color: var(--text-muted); display: block; margin-top: 8px; text-align: right; }
+        
+        /* ADMIN ACTION BUTTONS */
+        .admin-action-btn { background: var(--danger-red); color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        
+        .admin-sub-section { border-bottom: 1px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 25px; }
 
-        .file-box input[type="file"] {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
+        /* USER INFO CARDS FOR ADMIN */
+        .user-info-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+        .user-info-card h5 { margin: 0 0 6px 0; font-size: 15px; color: var(--primary-blue); }
+        .user-info-card p { margin: 4px 0; font-size: 13px; }
 
-        /* JOB CARDS */
-        .job-card {
-            background: white;
-            border-radius: 16px;
-            padding: 18px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
-            border-left: 5px solid var(--secondary-blue);
-        }
+        /* BOTTOM NAV */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; height: 72px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -4px 15px rgba(0,0,0,0.06); border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 900; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 11px; cursor: pointer; width: 20%; }
+        .nav-item i { font-size: 20px; margin-bottom: 4px; }
+        .nav-item.active { color: var(--primary-blue); font-weight: 700; }
+        #admin-nav-item { display: none; }
 
-        /* BOTTOM NAVIGATION BAR */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: #ffffff;
-            height: 70px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            box-shadow: 0 -4px 15px rgba(0,0,0,0.06);
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-            z-index: 900;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--text-muted);
-            font-size: 11px;
-            cursor: pointer;
-            text-decoration: none;
-            width: 20%;
-        }
-
-        .nav-item i {
-            font-size: 20px;
-            margin-bottom: 4px;
-        }
-
-        .nav-item.active {
-            color: var(--primary-blue);
-            font-weight: 700;
-        }
-
-        #admin-nav-item {
-            display: none; /* ለአድሚን ብቻ በጃቫስክሪፕት ይበራል */
-        }
+        /* SAVED PROFILE DISPLAY DISPLAY */
+        .saved-profile-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 14px; margin-bottom: 15px; }
 
         /* ANIMATIONS */
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10deg); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes scaleUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8deg); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
+    <!-- 1. SPLASH SCREEN -->
     <div id="splash-screen">
-        <div class="splash-logo">SiraLink</div>
-        <p style="opacity: 0.8; font-size: 14px;">የእርስዎ ታማኝ የስራ አጋር</p>
+        <div class="splash-bg-circles"></div>
+        <div class="splash-logo-container">
+            <i class="fa-solid fa-briefcase splash-icon"></i>
+            <h1 class="splash-logo">SiraLink</h1>
+            <p style="opacity: 0.8; font-size: 14px; margin-top: 5px;">የእርስዎ ታማኝ የስራ አጋር</p>
+        </div>
         <div class="spinner"></div>
     </div>
 
+    <!-- MAIN BOTTOM NAVIGATION -->
     <div class="bottom-nav">
         <div class="nav-item active" onclick="handleNav('dashboard-screen', this)"><i class="fa-solid fa-house"></i>ዳሽቦርድ</div>
         <div class="nav-item" onclick="handleNav('announcement-screen', this)"><i class="fa-solid fa-bullhorn"></i>ስራዎች</div>
@@ -349,12 +242,13 @@
         <div id="admin-nav-item" class="nav-item" onclick="handleNav('admin-screen', this)"><i class="fa-solid fa-user-shield"></i>አስተዳዳሪ</div>
     </div>
 
+    <!-- 2. DASHBOARD SCREEN -->
     <div id="dashboard-screen" class="screen active">
         <div class="top-banner">
             <div class="user-profile-section">
-                <img id="user-photo" src="https://via.placeholder.com/65" alt="User Photo">
+                <img id="user-photo" src="https://via.placeholder.com/65" alt="User">
                 <div class="welcome-text">
-                    <h2 id="welcome-msg">ሰላም፣ እንኳን መጡ! 👋</h2>
+                    <h2 id="welcome-msg">Hi, Temesgen 👋</h2>
                     <p><i class="fa-brands fa-telegram"></i> Connected via Telegram</p>
                 </div>
             </div>
@@ -365,10 +259,10 @@
                 <div class="alert-icon-box"><i class="fa-solid fa-bell"></i></div>
                 <div>
                     <div style="font-weight:700; font-size:14px;">የቀን ማስታወቂያዎች</div>
-                    <div style="font-size:12px; color:var(--text-muted);">አዳዲስ ስራዎች ተጨምረዋል</div>
+                    <div style="font-size:12px; color:var(--text-muted);">የዛሬ አዳዲስ የወጡ ስrules</div>
                 </div>
             </div>
-            <span style="background:#eff6ff; color:var(--secondary-blue); padding:4px 10px; border-radius:20px; font-size:12px; font-weight:700;">12 ></span>
+            <span id="today-jobs-badge" style="background:#eff6ff; color:var(--secondary-blue); padding:4px 10px; border-radius:20px; font-size:12px; font-weight:700;">0 ></span>
         </div>
 
         <div class="section-title">ዋና ምናሌ (Dashboard)</div>
@@ -381,7 +275,7 @@
                     <div style="font-size:12px; color:var(--text-muted);">ለእርስዎ የተመረጡ ትኩስ ስራዎች</div>
                 </div>
             </div>
-            <i class="fa-solid fa-chevron-right arrow-icon"></i>
+            <i class="fa-solid fa-chevron-right"></i>
         </div>
 
         <div class="menu-card" onclick="switchScreenDirect('profile-screen')">
@@ -389,97 +283,120 @@
                 <div class="card-icon" style="background:#f0fdf4; color:#22c55e;"><i class="fa-solid fa-user"></i></div>
                 <div>
                     <div style="font-weight:700; font-size:15px;">Profile (የግል መረጃ ማሟያ)</div>
-                    <div style="font-size:12px; color:var(--text-muted);">ትምህርት፣ ስልክ እና ሲቪ (CV) ያኑሩ</div>
+                    <div style="font-size:12px; color:var(--text-muted);">ሲቪ (CV)፣ ጾታ እና አድራሻ ያካትቱ</div>
                 </div>
             </div>
-            <i class="fa-solid fa-chevron-right arrow-icon"></i>
+            <i class="fa-solid fa-chevron-right"></i>
         </div>
 
-        <div class="menu-card" style="opacity:0.7;">
-            <div class="card-left">
-                <div class="card-icon" style="background:#faf5ff; color:#a855f7;"><i class="fa-solid fa-rocket"></i></div>
-                <div>
-                    <div style="font-weight:700; font-size:15px;">Coming Soon (በቅርቡ)</div>
-                    <div style="font-size:12px; color:var(--text-muted);">ተጨማሪ አዳዲስ ጠቃሚ ተግባራት</div>
-                </div>
-            </div>
-            <i class="fa-solid fa-chevron-right arrow-icon"></i>
-        </div>
-
-        <div class="section-title"><i class="fa-solid fa-chart-simple"></i> የእንቅስቃሴ ስታቲስቲክስ</div>
+        <div class="section-title"><i class="fa-solid fa-chart-line"></i> የእንቅስቃሴ ስታቲስቲክስ (Live)</div>
         <div class="stats-grid">
-            <div class="stat-box"><div class="stat-num">48</div><div class="stat-label">የተመዘገቡ ስራዎች</div></div>
-            <div class="stat-box"><div class="stat-num">1,256</div><div class="stat-label">ተጠቃሚዎች</div></div>
+            <div class="stat-box"><div id="stat-today-jobs" class="stat-num">0</div><div class="stat-label">የዛሬ ስራዎች</div></div>
+            <div class="stat-box"><div id="stat-total-users" class="stat-num font-weight:800;">0</div><div class="stat-label">ተመዝጋቢዎች</div></div>
+            <div class="stat-box"><div id="stat-total-jobs" class="stat-num">0</div><div class="stat-label">ጠቅላላ ስራዎች</div></div>
         </div>
     </div>
 
+    <!-- 3. ANNOUNCEMENT SCREEN -->
     <div id="announcement-screen" class="screen">
         <h3 style="font-weight:800; margin-bottom:20px; color:var(--primary-blue);"><i class="fa-solid fa-bullhorn"></i> የቅርብ ጊዜ ስራዎች</h3>
         <div id="jobs-container"></div>
     </div>
 
+    <!-- 4. PROFILE SCREEN -->
     <div id="profile-screen" class="screen">
-        <h3 style="font-weight:800; margin-bottom:20px; color:var(--primary-blue);"><i class="fa-solid fa-user-gear"></i> የግል መረጃዎን ያሟሉ</h3>
+        <h3 style="font-weight:800; margin-bottom:15px; color:var(--primary-blue);"><i class="fa-solid fa-id-card"></i> የእርስዎን መረጃ ያሟሉ</h3>
+        
+        <!-- የሞላውን መረጃ መልሶ ማሳያ ክፍል -->
+        <div id="saved-profile-container" style="display:none;" class="saved-profile-box">
+            <h4 style="margin:0 0 8px 0; color:var(--success-green);"><i class="fa-solid fa-circle-check"></i> የተመዘገበ መረጃዎ</h4>
+            <p id="saved-profile-details" style="font-size:13px; margin:0; line-height:1.6; color:#166534;"></p>
+        </div>
+
         <div class="form-container">
             <div class="form-group">
                 <label>ሙሉ ስም</label>
                 <input type="text" id="prof-name" placeholder="ሙሉ ስምዎን ያስገቡ">
             </div>
             <div class="form-group">
+                <label>ጾታ (Sex)</label>
+                <div class="radio-group">
+                    <label class="radio-option"><input type="radio" name="prof-sex" value="ወንድ"> ወንድ</label>
+                    <label class="radio-option"><input type="radio" name="prof-sex" value="ሴት"> ሴት</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>አድራሻ (ከተማ / ክፍለ ከተማ)</label>
+                <input type="text" id="prof-address" placeholder="ምሳሌ፦ አዲስ አበባ፣ ቦሌ">
+            </div>
+            <div class="form-group">
                 <label>ስልክ ቁጥር</label>
                 <input type="tel" id="prof-phone" placeholder="+251...">
             </div>
             <div class="form-group">
-                <label>የተመረቁበት የትምህርት ክፍል (ዘርፍ)</label>
-                <select id="prof-dept">
-                    <option value="">ዘርፍ ይምረጡ</option>
-                    <option value="IT">Software / IT / Computer Science</option>
-                    <option value="Accounting">Accounting & Finance</option>
-                    <option value="Health">Health & Medicine</option>
-                    <option value="Marketing">Marketing & Sales</option>
-                </select>
+                <label>የተመረቁበት የትምህርት ክፍል (ዲፓርትመንት)</label>
+                <input type="text" id="prof-dept-text" placeholder="ምሳሌ፦ Computer Science, Management...">
             </div>
             <div class="form-group">
-                <label>የፕሮፋይል ፎቶ (Upload Photo)</label>
+                <label>የፕሮፋይል ፎቶ</label>
                 <div class="file-box">
-                    <i class="fa-solid fa-camera" style="font-size:24px; color:var(--text-muted);"></i>
-                    <p id="photo-label" style="font-size:13px; margin:5px 0 0 0; color:var(--text-muted);">ፎቶ ለመምረጥ እዚህ ይጫኑ</p>
+                    <i class="fa-solid fa-camera" style="font-size:20px; color:var(--text-muted);"></i>
+                    <p id="photo-label" style="font-size:12px; margin:4px 0 0 0;">ፎቶ ለመምረጥ እዚህ ይጫኑ</p>
                     <input type="file" id="prof-photo-file" accept="image/*" onchange="updateFileLabel('prof-photo-file', 'photo-label')">
                 </div>
             </div>
             <div class="form-group">
-                <label>የእርስዎን ሲቪ / CV (PDF/Doc)</label>
+                <label>የእርስዎ ሲቪ / CV (PDF/Word)</label>
                 <div class="file-box">
-                    <i class="fa-solid fa-file-pdf" style="font-size:24px; color:var(--text-muted);"></i>
-                    <p id="cv-label" style="font-size:13px; margin:5px 0 0 0; color:var(--text-muted);">ሲቪ ፋይል (CV) ለመምረጥ እዚህ ይጫኑ</p>
+                    <i class="fa-solid fa-file-pdf" style="font-size:20px; color:var(--text-muted);"></i>
+                    <p id="cv-label" style="font-size:12px; margin:4px 0 0 0;">ሲቪ ፋይል ለመምረጥ እዚህ ይጫኑ</p>
                     <input type="file" id="prof-cv-file" accept=".pdf,.doc,.docx" onchange="updateFileLabel('prof-cv-file', 'cv-label')">
                 </div>
             </div>
-            <button class="btn" style="width:100%; padding:14px; background:var(--primary-blue); color:white; border:none; border-radius:12px; font-weight:700; font-size:16px; margin-top:10px;" onclick="saveAdvancedProfile()">💾 መረጃውን በሙሉ መዝግብ</button>
+            <button class="btn" style="width:100%; padding:14px; background:var(--primary-blue); color:white; border:none; border-radius:12px; font-weight:700; font-size:16px;" onclick="saveComprehensiveProfile()">💾 መረጃውን በሙሉ መዝግብ</button>
         </div>
     </div>
 
+    <!-- 5. ADMIN MASTER SCREEN -->
     <div id="admin-screen" class="screen">
-        <h3 style="font-weight:800; margin-bottom:20px; color:#e67e22;"><i class="fa-solid fa-user-shield"></i> አዲስ ስራ መለጠፊያ (Admin Only)</h3>
-        <div class="form-container">
-            <div class="form-group">
-                <label>የስራ መደብ (Title)</label>
-                <input type="text" id="job-title-input" placeholder="ምሳሌ፡ ጁኒየር ሶፍትዌር ዲቨሎፐር">
+        <h3 style="font-weight:800; margin-bottom:20px; color:#e67e22;"><i class="fa-solid fa-user-shield"></i> የ SiraLink አድሚን ማዕከል</h3>
+        
+        <!-- 🔐 PART A: POST JOB -->
+        <div class="admin-sub-section">
+            <h4 style="color:#e67e22; margin-top:0;"><i class="fa-solid fa-plus-circle"></i> 1. አዲስ ስራ መለጠፊያ</h4>
+            <div class="form-container">
+                <div class="form-group">
+                    <label>የስራ መደብ (Title)</label>
+                    <input type="text" id="job-title-input" placeholder="ምሳሌ፦ ሲኒየር አካውንታንት">
+                </div>
+                <div class="form-group">
+                    <label>የስራ ዘርፍ (Category)</label>
+                    <input type="text" id="job-cat-input" placeholder="ምሳሌ፦ Accounting, IT, Health">
+                </div>
+                <div class="form-group">
+                    <label>የማስታወቂያ ፎቶ ሊንክ (Photo URL - ካለ ብቻ)</label>
+                    <input type="text" id="job-photo-url-input" placeholder="http://example.com/image.jpg">
+                </div>
+                <div class="form-group">
+                    <label>የስራ ዝርዝር መግለጫ (Description)</label>
+                    <textarea id="job-desc-input" rows="5" placeholder="የስራ መስፈርቶች፣ ደሞዝ..."></textarea>
+                </div>
+                <button class="btn" style="width:100%; padding:12px; background:#e67e22; color:white; border:none; border-radius:10px; font-weight:700;" onclick="postJobByAdmin(false)">🚀 በይፋ ልቀቅ</button>
             </div>
-            <div class="form-group">
-                <label>የስራ ዘርፍ (Category)</label>
-                <select id="job-cat-input">
-                    <option value="IT">Software / IT</option>
-                    <option value="Accounting">Accounting</option>
-                    <option value="Health">Health</option>
-                    <option value="Marketing">Marketing</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>የስራ ዝርዝር መግለጫ (Description)</label>
-                <textarea id="job-desc-input" rows="6" placeholder="የስራ መስፈርቶች፣ ደሞዝ፣ ማመልከቻ ሊንክ..."></textarea>
-            </div>
-            <button class="btn" style="width:100%; padding:14px; background:#e67e22; color:white; border:none; border-radius:12px; font-weight:700; font-size:16px;" onclick="postJobByAdmin()">🚀 ስራውን በይፋ ልቀቅ</button>
+        </div>
+
+        <!-- 🔐 PART B: VIEW & VERIFY USERS WITH CV INFO -->
+        <div class="admin-sub-section">
+            <h4 style="color:var(--primary-blue);"><i class="fa-solid fa-users-viewfinder"></i> 2. የተመዘገቡ ተጠቃሚዎች እና CV ማያ</h4>
+            <button class="btn" style="background:var(--primary-blue); color:white; border:none; padding:10px; border-radius:8px; font-size:13px; font-weight:700; width:100%; margin-bottom:12px;" onclick="loadUsersForAdmin()">🔄 የተጠቃሚዎችን መረጃ አምጣ/አድስ</button>
+            <div id="admin-users-container"></div>
+        </div>
+
+        <!-- 🔐 PART C: DELETE OLD JOBS -->
+        <div class="admin-sub-section">
+            <h4 style="color:var(--danger-red);"><i class="fa-solid fa-trash-can"></i> 3. ጊዜ ያለፈባቸውን ስራዎች ማጥፊያ</h4>
+            <button class="btn" style="background:var(--danger-red); color:white; border:none; padding:10px; border-radius:8px; font-size:13px; font-weight:700; width:100%; margin-bottom:12px;" onclick="loadJobsForDeletion()">📂 የለጠፍካቸውን ስራዎች ዝርዝር አምጣ</button>
+            <div id="admin-delete-jobs-container"></div>
         </div>
     </div>
 
@@ -496,140 +413,162 @@
 
         let currentUser = null;
 
-        // የፋይል ስም ማሳያ ማስተካከያ
         function updateFileLabel(inputId, labelId) {
-            const fileInput = document.getElementById(inputId);
+            const input = document.getElementById(inputId);
             const label = document.getElementById(labelId);
-            if(fileInput.files.length > 0) {
-                label.innerText = "✓ " + fileInput.files[0].name;
-                label.style.color = "#22c55e";
+            if(input.files.length > 0) {
+                label.innerText = "✓ " + input.files[0].name;
+                label.style.color = "var(--success-green)";
             }
         }
 
-        // ገጽ በታችኛው ባር ለመቀየር
         function handleNav(screenId, element) {
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             element.classList.add('active');
-            
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
             
-            if(screenId === 'announcement-screen') {
-                loadApprovedJobs();
-            }
+            if(screenId === 'announcement-screen') loadApprovedJobs();
+            if(screenId === 'profile-screen') checkExistingProfile();
+            if(screenId === 'dashboard-screen') fetchLiveStatistics();
         }
 
-        // ከካርድ በቀጥታ ለመቀየር
         function switchScreenDirect(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
-            
-            // የታችኛውን ባር አይኮን አብሮ ማብራት
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
                 if(item.innerText.includes('ስራዎች') && screenId === 'announcement-screen') item.classList.add('active');
                 if(item.innerText.includes('ፕሮፋይል') && screenId === 'profile-screen') item.classList.add('active');
             });
-
             if(screenId === 'announcement-screen') loadApprovedJobs();
+            if(screenId === 'profile-screen') checkExistingProfile();
         }
 
-        // አፑ ሲነሳ (Init)
+        // 📊 ሪል-ታይም የዳሽቦርድ ስታቲስቲክስ መቆጠሪያ
+        async function fetchLiveStatistics() {
+            try {
+                // 1. ጠቅላላ ተጠቃሚዎች
+                const { count: usersCount } = await _supabase.from('users').select('*', { count: 'exact', head: true });
+                document.getElementById('stat-total-users').innerText = usersCount || 0;
+
+                // 2. ጠቅላላ ስራዎች
+                const { count: jobsCount } = await _supabase.from('jobs').select('*', { count: 'exact', head: true }).eq('is_approved', true);
+                document.getElementById('stat-total-jobs').innerText = jobsCount || 0;
+
+                // 3. የዛሬ ስራዎች (ባለፉት 24 ሰዓታት ውስጥ የወጡ)
+                const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+                const { count: todayJobsCount } = await _supabase.from('jobs').select('*', { count: 'exact', head: true }).eq('is_approved', true).gte('created_at', oneDayAgo);
+                
+                document.getElementById('stat-today-jobs').innerText = todayJobsCount || 0;
+                document.getElementById('today-jobs-badge').innerText = `${todayJobsCount || 0} >`;
+            } catch (err) { console.error(err); }
+        }
+
         async function initApp() {
             const tgUser = tg.initDataUnsafe?.user;
-            
             if (!tgUser) {
-                currentUser = { id: ADMIN_TELEGRAM_ID, first_name: "Temesgen", username: "test_admin" };
+                currentUser = { id: ADMIN_TELEGRAM_ID, first_name: "Temesgen", username: "admin_test" };
             } else {
-                currentUser = {
-                    id: tgUser.id,
-                    first_name: tgUser.first_name,
-                    username: tgUser.username,
-                    photo_url: tgUser.photo_url
-                };
+                currentUser = { id: tgUser.id, first_name: tgUser.first_name, username: tgUser.username, photo_url: tgUser.photo_url };
             }
 
-            document.getElementById('welcome-msg').innerText = `Hi, ${currentUser.first_name} 🖐️\nእንኳን ደህና መጡ!`;
-            if(currentUser.photo_url) {
-                document.getElementById('user-photo').src = currentUser.photo_url;
-            }
+            document.getElementById('welcome-msg').innerText = `Hi, ${currentUser.first_name} 👋\nእንኳን ደህና መጡ!`;
+            if(currentUser.photo_url) document.getElementById('user-photo').src = currentUser.photo_url;
 
-            // ለአድሚን ብቻ ቁልፍ ማሳያ
             if (Number(currentUser.id) === Number(ADMIN_TELEGRAM_ID)) {
                 document.getElementById('admin-nav-item').style.display = 'flex';
             }
 
-            // ተጠቃሚውን መዝግብ
             try {
                 let { data: userExist } = await _supabase.from('users').select('*').eq('telegram_id', currentUser.id).maybeSingle();
                 if (!userExist) {
-                    await _supabase.from('users').insert([{
-                        telegram_id: currentUser.id,
-                        username: currentUser.username,
-                        first_name: currentUser.first_name
-                    }]);
+                    await _supabase.from('users').insert([{ telegram_id: currentUser.id, username: currentUser.username, first_name: currentUser.first_name }]);
                 }
             } catch (err) { console.error(err); }
 
-            // Splash Screen ማጥፊያ (ከ2 ሰከንድ በኋላ)
+            await fetchLiveStatistics();
+
+            // Splash screen ማጥፊያ
             setTimeout(() => {
                 const splash = document.getElementById('splash-screen');
                 splash.style.opacity = '0';
                 setTimeout(() => splash.style.display = 'none', 500);
-            }, 2000);
+            }, 2500);
         }
 
-        // የተራቀቀ የፕሮፋይል መዝገብ (ፎቶና ሲቪን ጨምሮ)
-        async function saveAdvancedProfile() {
+        // የራስን የሞሉትን መረጃ ማረጋገጫ
+        async function checkExistingProfile() {
+            const container = document.getElementById('saved-profile-container');
+            const detailsText = document.getElementById('saved-profile-details');
+            
+            const { data: prof } = await _supabase.from('profiles').select('*').eq('telegram_id', currentUser.id).order('id', { ascending: false }).limit(1).maybeSingle();
+            
+            if(prof) {
+                container.style.display = 'block';
+                detailsText.innerHTML = `
+                    <strong>👤 ስም፦</strong> ${prof.full_name}<br>
+                    <strong>📞 ስልክ፦</strong> ${prof.phone}<br>
+                    <strong>💼 ዘርፍ፦</strong> ${prof.department}<br>
+                    <strong>📎 ፋይሎች፦</strong> ${prof.cv_url || 'የሉም'}
+                `;
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        // የላቀ የፕሮፋይል መረጃ መዝገብ
+        async function saveComprehensiveProfile() {
             const name = document.getElementById('prof-name').value;
             const phone = document.getElementById('prof-phone').value;
-            const dept = document.getElementById('prof-dept').value;
-            
-            if(!name || !phone || !dept) {
-                alert('እባክዎ ዋና ዋና መረጃዎችን (ስም፣ ስልክ፣ ዘርፍ) ያሟሉ!');
+            const dept = document.getElementById('prof-dept-text').value;
+            const address = document.getElementById('prof-address').value;
+            const sexRadio = document.querySelector('input[name="prof-sex"]:checked');
+
+            if(!name || !phone || !dept || !address || !sexRadio) {
+                alert('እባክዎ ሁሉንም መረጃዎች (ስም፣ ጾታ፣ አድራሻ፣ ስልክ እና ዲፓርትመንት) ያሟሉ!');
                 return;
             }
 
+            const sex = sexRadio.value;
             if(tg.showProgress) tg.showProgress();
 
-            // የፋይሎቹን ስም በቴክስት መልክ መያዝ
             const photoFile = document.getElementById('prof-photo-file').files[0];
             const cvFile = document.getElementById('prof-cv-file').files[0];
+            const photoLabel = photoFile ? photoFile.name : 'No Photo';
+            const cvLabel = cvFile ? cvFile.name : 'No CV';
 
-            const photoName = photoFile ? photoFile.name : 'Not Provided';
-            const cvName = cvFile ? cvFile.name : 'Not Provided';
+            // ሁሉንም አዳዲስ መረጃዎች በአንድነት አቀናጅቶ cv_url ውስጥ በቴክስት መልክ ማስቀመጥ (ሰንጠረዡ ሳይበላሽ)
+            const compiledMeta = `ጾታ: ${sex} | አድራሻ: ${address} | ፎቶ: ${photoLabel} | CV: ${cvLabel}`;
 
             const { error } = await _supabase.from('profiles').insert([{
                 telegram_id: currentUser.id,
                 full_name: name,
                 phone: phone,
                 department: dept,
-                cv_url: `Photo: ${photoName} | CV: ${cvName}` // መረጃውን በአንድነት ለማስቀመጥ
+                cv_url: compiledMeta
             }]);
 
             if(tg.hideProgress) tg.hideProgress();
 
             if (!error) {
-                alert('🎉 መረጃዎ እና ፋይሎችዎ በተሳካ ሁኔታ ተመዝግበዋል!');
+                alert('🎉 መረጃዎ በስኬት ተመዝግቧል!');
+                checkExistingProfile();
                 switchScreenDirect('dashboard-screen');
             } else {
                 alert('ስህተት፡ ' + error.message);
             }
         }
 
-        // ስራዎችን ማሳያ
+        // ስራዎችን ለተጠቃሚ ማሳያ (ከቀን እና ሰዓት ጋር)
         async function loadApprovedJobs() {
             const container = document.getElementById('jobs-container');
-            container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:30px;"><i class="fa-solid fa-spinner fa-spin"></i> ስራዎች በመጫን ላይ ናቸው...</p>';
+            container.innerHTML = '<p style="text-align:center; color:var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> ስራዎች በመጫን ላይ ናቸው...</p>';
 
-            const { data: jobs, error } = await _supabase
-                .from('jobs')
-                .select('*')
-                .eq('is_approved', true) 
-                .order('id', { ascending: false });
+            const { data: jobs, error } = await _supabase.from('jobs').select('*').eq('is_approved', true).order('id', { ascending: false });
 
             if (error || !jobs || jobs.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:30px;">ለጊዜው ምንም አዲስ የስራ ማስታወቂያ የለም።</p>';
+                container.innerHTML = '<p style="text-align:center; color:var(--text-muted);">ምንም አዲስ የስራ ማስታወቂያ የለም።</p>';
                 return;
             }
 
@@ -637,44 +576,126 @@
             jobs.forEach(job => {
                 const card = document.createElement('div');
                 card.className = 'job-card';
+                
+                // የኢትዮጵያ ሰዓት አቆጣጠር ፎርማት
+                const jobDate = job.created_at ? new Date(job.created_at).toLocaleString('am-ET', { hour12: true }) : 'በቅርቡ';
+
+                // ፎቶ ካለው ማሳያ
+                let imgTag = '';
+                if(job.category && job.category.startsWith('http')) {
+                    imgTag = `<img src="${job.category}" style="display:block;">`;
+                }
+
                 card.innerHTML = `
-                    <h4 style="margin:0 0 8px 0; color:var(--primary-blue); font-size:16px; font-weight:700;">${job.title}</h4>
+                    ${imgTag}
+                    <h4 style="margin:0 0 6px 0; color:var(--primary-blue); font-size:16px;">${job.title}</h4>
                     <p style="font-size:14px; margin:0 0 10px 0; line-height:1.5; white-space:pre-line;">${job.description}</p>
-                    <span style="font-size:12px; color:var(--text-muted); font-weight:600;"><i class="fa-solid fa-briefcase"></i> ዘርፍ፡ ${job.category}</span>
+                    <span style="font-size:12px; color:var(--text-muted); font-weight:600;"><i class="fa-solid fa-tag"></i> ዘርፍ፦ ${job.category && !job.category.startsWith('http') ? job.category : 'የተመረጠ'}</span>
+                    <span class="job-time"><i class="fa-solid fa-clock"></i> ተለጠፈ፦ ${jobDate}</span>
                 `;
                 container.appendChild(card);
             });
         }
 
-        // አድሚን ስራ መለጠፊያ
+        // 🔐 ADMIN: ስራ መለጠፊያ (ከፎቶ ሊንክ ጋር)
         async function postJobByAdmin() {
             const title = document.getElementById('job-title-input').value;
-            const cat = document.getElementById('job-cat-input').value;
+            let cat = document.getElementById('job-cat-input').value;
+            const photoUrl = document.getElementById('job-photo-url-input').value;
             const desc = document.getElementById('job-desc-input').value;
 
             if(!title || !desc) {
-                alert('እባክዎ የስራውን ርዕስ እና ዝርዝር መግለጫ ያስገቡ!');
+                alert('እባክዎ ርዕስ እና ዝርዝር መግለጫ ያስገቡ!');
                 return;
             }
 
+            // ፎቶ ሊንክ ካለው በ category ውስጥ በብልሃት እናስቀምጠዋለን (የድሮው ሰንጠረዥ አወቃቀር እንዳይፈርስ)
+            if(photoUrl) { cat = photoUrl; }
+
             if(tg.showProgress) tg.showProgress();
 
-            const { error } = await _supabase.from('jobs').insert([{
-                title: title,
-                category: cat,
-                description: desc,
-                is_approved: true
-            }]);
+            const { error } = await _supabase.from('jobs').insert([{ title: title, category: cat, description: desc, is_approved: true }]);
 
             if(tg.hideProgress) tg.hideProgress();
 
             if (!error) {
-                alert('🚀 ስራው ወዲያውኑ በይፋ ተለጥፏል!');
+                alert('🚀 አዲስ ስራ ወዲያውኑ በይፋ ተለጥፏል!');
                 document.getElementById('job-title-input').value = '';
+                document.getElementById('job-photo-url-input').value = '';
                 document.getElementById('job-desc-input').value = '';
-                switchScreenDirect('dashboard-screen');
+                fetchLiveStatistics();
             } else {
                 alert('ስህተት፡ ' + error.message);
+            }
+        }
+
+        // 🔐 ADMIN: ተጠቃሚዎችን እና CV መረጃ ማያ + Verify Button
+        async function loadUsersForAdmin() {
+            const container = document.getElementById('admin-users-container');
+            container.innerHTML = '<p>በመጫን ላይ...</p>';
+
+            const { data: profiles, error } = await _supabase.from('profiles').select('*').order('id', { ascending: false });
+
+            if(error || !profiles || profiles.length === 0) {
+                container.innerHTML = '<p>ምንም የተመዘገበ ተጠቃሚ የለም።</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            profiles.forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'user-info-card';
+                div.innerHTML = `
+                    <h5>👤 ${p.full_name}</h5>
+                    <p><strong>ስልክ፦</strong> ${p.phone}</p>
+                    <p><strong>ዲፓርትመንት፦</strong> ${p.department}</p>
+                    <p style="color:var(--secondary-blue); font-size:12px;"><strong>CV & Meta Details፦</strong> ${p.cv_url || 'የለም'}</p>
+                    <button class="admin-action-btn" style="background:var(--success-green); margin-right:5px;" onclick="alert('ተጠቃሚው ${p.full_name} ቬሪፋይድ ሆኗል! (Verified ✓)')">✓ Verify User</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // 🔐 ADMIN: ስራዎችን ማጥፊያ ክፍል ማምጫ
+        async function loadJobsForDeletion() {
+            const container = document.getElementById('admin-delete-jobs-container');
+            container.innerHTML = '<p>ስራዎች በመጫን ላይ...</p>';
+
+            const { data: jobs, error } = await _supabase.from('jobs').select('*').order('id', { ascending: false });
+
+            if(error || !jobs || jobs.length === 0) {
+                container.innerHTML = '<p>የሚጠፋ ስራ አልተገኘም።</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            jobs.forEach(j => {
+                const div = document.createElement('div');
+                div.style = 'background:#fff5f5; border:1px solid #fed7d7; padding:12px; border-radius:10px; margin-bottom:10px;';
+                div.innerHTML = `
+                    <div style="font-weight:700; font-size:14px; color:var(--text-dark);">${j.title}</div>
+                    <button class="admin-action-btn" onclick="deleteJobByAdmin(${j.id})"><i class="fa-solid fa-trash"></i> ይህንን ስራ በምስል ሰርዝ (Delete)</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // 🔐 ADMIN: ስራን ሙሉ በሙሉ ከዳታቤዝ ማጥፊያ (Delete)
+        async function deleteJobByAdmin(jobId) {
+            if(!confirm('እርግጠኛ ነዎት ይህ የስራ ማስታወቂያ ሙሉ በሙሉ ይጥፋ?')) return;
+
+            if(tg.showProgress) tg.showProgress();
+
+            const { error } = await _supabase.from('jobs').delete().eq('id', jobId);
+
+            if(tg.hideProgress) tg.hideProgress();
+
+            if(!error) {
+                alert('🗑️ ስራው በተሳካ ሁኔታ ከዳታቤዝ ተሰርዟል!');
+                loadJobsForDeletion();
+                fetchLiveStatistics();
+            } else {
+                alert('ማጥፋት አልተቻለም፦ ' + error.message);
             }
         }
 
